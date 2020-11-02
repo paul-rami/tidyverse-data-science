@@ -1,0 +1,8 @@
+UIB digital - Material de R - Análisis del CO2 - Dr. Ricardo AlberichURL
+
+http://bioinfo.uib.es/~ricardo/MADMexample/
+
+descargar "talleresR4DataS_CO2DB.zip" (opción descargar directorio directamente desde R - get)
+
+Objetivo:
+- World_Bank_CO2.xlsx: pasar de la pestaña Raw a la Cleaned usando R (tidyverse - R for Data Science)
