@@ -1,0 +1,96 @@
+---
+title: "2020-11-04 World Bank CO2"
+author: "Paul Ramírez"
+date: "04/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Wrangling
+
+### Loading of raw data (CO2 (kt) RAW DATA)
+
+```{r}
+library(tidyverse)
+rel_path_excel = "World_Bank_CO2.xlsx"
+excel_sheets <- readxl::excel_sheets(rel_path_excel)
+show(excel_sheets)
+excel_sheets[3]
+excel_sheets[7]
+raw_CO2_data <- readxl::read_excel(rel_path_excel, sheet = excel_sheets[3])
+raw_CO2_per_capita_data <- readxl::read_excel(rel_path_excel, sheet = excel_sheets[7])
+class(raw_CO2_data)
+head( raw_CO2_data, 10)
+
+```
+### Tidying data, `gather` function
+
+Selecting columns names of "year" columns
+```{r}
+
+year_columns1 = colnames( raw_CO2_data %>% select(5:ncol(raw_CO2_data)) )
+
+year_columns2 = colnames( raw_CO2_per_capita_data %>% select(5:ncol(raw_CO2_per_capita_data)) )
+
+```
+
+Unpivoting "year" columns to rows using `gather`
+
+```{r}
+tidy_CO2_data <- raw_CO2_data %>%
+  gather(year_columns1, key = "Year", value = "CO2 emissions (kt)")
+
+tidy_CO2_per_capita_data <- raw_CO2_per_capita_data %>%
+  gather(year_columns2, key = "Year", value = "CO2 emissions (metric tons per capita)")
+
+```
+Removing unnecessary columns
+
+```{r}
+show( colnames( tidy_CO2_data ) )
+tidy_CO2_data <- tidy_CO2_data %>%
+  select(-`Indicator Name`, -`Indicator Code`)
+show( colnames( tidy_CO2_data ) )
+tidy_CO2_data %>% arrange(`Country Code`, Year) %>% head(10)
+
+show( colnames( tidy_CO2_per_capita_data ) )
+tidy_CO2_per_capita_data <- tidy_CO2_per_capita_data %>%
+  select(-`Indicator Name`, -`Indicator Code`)
+show( colnames( tidy_CO2_per_capita_data ) )
+tidy_CO2_per_capita_data %>% arrange(`Country Code`, Year) %>% head(10)
+
+
+```
+## Joining CO2 dataset with CO2 per capita to obtain the final clean dataset
+
+First we need to create an extra column with the Country Code - Year pairings so they are a unique primary key in both tables
+
+```{r}
+
+tidy_CO2_data <- tidy_CO2_data %>% 
+  mutate( CC_Year = str_c(`Country Code`, Year, sep = "_") )
+
+tidy_CO2_per_capita_data <- tidy_CO2_per_capita_data %>% 
+  mutate( CC_Year = str_c(`Country Code`, Year, sep = "_") )
+
+tidy_CO2_per_capita_data_select <- tidy_CO2_per_capita_data %>%
+  select(-`Country Name`, -`Country Code`, -Year)
+
+tidy_CO2_final <- tidy_CO2_data %>%
+  full_join( tidy_CO2_per_capita_data_select, by = "CC_Year" ) %>%
+  select(-CC_Year)
+tidy_CO2_final %>% 
+  arrange(`Country Code`, Year) %>%
+  head(10)
+
+```
+
+
+
+
+
+
+
