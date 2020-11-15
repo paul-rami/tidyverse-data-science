@@ -1783,6 +1783,13 @@ data_CO2$CO2_kt_RAW_DATA %>% gather(`1960`:`2015`, key="Year", value="CO2") %>%
   mutate(Year=as.integer(Year),CO2=as.numeric(CO2)) %>%
   arrange(Country_Code) -> aux
 
+#función recomendada "pivot_longer()"
+help(gather)
+data_CO2$CO2_kt_RAW_DATA %>%
+  pivot_longer(`1960`:`2015`, names_to = "Year", values_to = "CO2") %>%
+  naniar::replace_with_na(replace =list(CO2 ="null")) %>%
+  mutate(Year=as.integer(Year),CO2=as.numeric(CO2)) %>%
+  arrange(Country_Code) -> aux_2
 
 print(aux,n=10,width=Inf)
 ```
